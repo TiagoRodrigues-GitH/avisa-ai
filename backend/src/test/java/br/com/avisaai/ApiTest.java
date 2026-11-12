@@ -53,7 +53,7 @@ class ApiTest {
                 .andExpect(jsonPath("$.status").value("SCHEDULED"));
 
         JsonNode queue = read(mvc.perform(get("/api/queue")).andExpect(status().isOk()).andReturn().getResponse().getContentAsString());
-        // Fora do horÃ¡rio comercial o aviso pode ficar para a manhÃ£; dentro dele, jÃ¡ estÃ¡ na fila.
+        // Fora do horário comercial o aviso pode ficar para a manhã; dentro dele, já está na fila.
         if (queue.size() > 0) {
             JsonNode item = queue.get(0);
             assertThat(item.get("kind").asText()).isEqualTo("APPOINTMENT_CONFIRM");
@@ -69,7 +69,7 @@ class ApiTest {
     void customerWithoutConsentIsNeverMessaged() throws Exception {
         long customerId = createCustomer("Mateus Elias", "41977444444", false);
         String body = """
-                {"customerId": %d, "type": "WAITLIST", "title": "horÃ¡rio extra", "eventAt": "%s"}
+                {"customerId": %d, "type": "WAITLIST", "title": "horário extra", "eventAt": "%s"}
                 """.formatted(customerId, Instant.now().plus(Duration.ofDays(1)));
         JsonNode created = read(mvc.perform(post("/api/reminders").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andReturn().getResponse().getContentAsString());
@@ -77,7 +77,7 @@ class ApiTest {
         JsonNode messages = read(mvc.perform(get("/api/reminders/" + created.get("id").asLong() + "/messages"))
                 .andReturn().getResponse().getContentAsString());
         String status = messages.get(0).get("status").asText();
-        assertThat(status).isIn("SKIPPED", "PENDING"); // PENDING sÃ³ se agora for horÃ¡rio de silÃªncio
+        assertThat(status).isIn("SKIPPED", "PENDING"); // PENDING só se agora for horário de silêncio
     }
 
     @Test
