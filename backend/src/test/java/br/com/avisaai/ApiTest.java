@@ -1,4 +1,4 @@
-﻿package br.com.avisaai;
+package br.com.avisaai;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,7 +46,7 @@ class ApiTest {
     void lastMinuteAppointmentGoesStraightToTheQueueWithAWhatsAppLink() throws Exception {
         long customerId = createCustomer("Eduarda Martins", "(43) 99911-1111", true);
         String body = """
-                {"customerId": %d, "type": "APPOINTMENT", "title": "consulta com a Dra. EmÃ­lia", "eventAt": "%s"}
+                {"customerId": %d, "type": "APPOINTMENT", "title": "consulta com a Dra. Emília", "eventAt": "%s"}
                 """.formatted(customerId, Instant.now().plus(Duration.ofHours(5)));
         mvc.perform(post("/api/reminders").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isCreated())
