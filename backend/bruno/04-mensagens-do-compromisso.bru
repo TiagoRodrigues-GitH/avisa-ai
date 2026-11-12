@@ -1,0 +1,15 @@
+meta {
+  name: 04 Linha do tempo das mensagens
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/reminders/{{compromissoId}}/messages
+  auth: basic
+}
+
+auth:basic {
+  username: {{usuario}}
+  password: {{senha}}
+}

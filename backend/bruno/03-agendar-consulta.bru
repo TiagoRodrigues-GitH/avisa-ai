@@ -1,0 +1,24 @@
+meta {
+  name: 03 Agendar consulta (gera os avisos)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/reminders
+  body: json
+  auth: basic
+}
+
+auth:basic {
+  username: {{usuario}}
+  password: {{senha}}
+}
+
+body:json {
+  { "customerId": {{clienteId}}, "type": "APPOINTMENT", "title": "consulta com a Dra. Ana", "eventAt": "2026-12-01T14:00:00-03:00" }
+}
+
+vars:post-response {
+  compromissoId: res.body.id
+}

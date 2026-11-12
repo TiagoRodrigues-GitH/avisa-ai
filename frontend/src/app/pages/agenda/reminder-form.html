@@ -1,0 +1,127 @@
+<header class="page-head">
+  <div>
+    <a class="back" routerLink="/agenda">← Compromissos</a>
+    <h1>{{ editing() ? 'Compromisso' : 'Novo aviso' }}</h1>
+    <p>{{ selectedType().hint }}</p>
+  </div>
+  @if (reminder(); as r) {
+    <span class="chip big" [class.ok]="r.status === 'CONFIRMED' || r.status === 'DONE'" [class.warn]="r.status === 'RESCHEDULE_REQUESTED'" [class.bad]="r.status === 'NO_SHOW' || r.status === 'CANCELED'">
+      {{ statusLabel[r.status] }}
+    </span>
+  }
+</header>
+
+@if (error()) {
+  <p class="alert" role="alert">{{ error() }}</p>
+}
+
+<div class="layout">
+  <form class="card form" (ngSubmit)="save()" #f="ngForm">
+    <fieldset class="types">
+      <legend>Tipo de aviso</legend>
+      @for (t of types; track t.value) {
+        <label class="type" [class.selected]="type() === t.value">
+          <input type="radio" name="type" [value]="t.value" [ngModel]="type()" (ngModelChange)="type.set($event)" [disabled]="editing() && t.value !== type() && reminder()?.type === 'DELIVERY'" />
+          <span class="type-icon" aria-hidden="true">{{ t.icon }}</span>
+          <span>{{ t.label }}</span>
+        </label>
+      }
+    </fieldset>
+
+    @if (!newCustomer()) {
+      <div class="customer-row">
+        <label class="grow">Cliente
+          <select name="customerId" [(ngModel)]="customerId" required>
+            <option [ngValue]="null" disabled>Escolha…</option>
+            @for (c of customers(); track c.id) {
+              <option [ngValue]="c.id">{{ c.name }} — {{ c.phonePretty }}{{ c.consent ? '' : ' (sem consentimento)' }}</option>
+            }
+          </select>
+        </label>
+        <button type="button" class="btn btn-outline" (click)="newCustomer.set(true)">+ Cliente novo</button>
+      </div>
+    } @else {
+      <fieldset class="new-customer">
+        <legend>Cliente novo</legend>
+        <label>Nome <input name="cName" [(ngModel)]="cName" required maxlength="120" /></label>
+        <label>WhatsApp (com DDD) <input name="cPhone" [(ngModel)]="cPhone" required inputmode="tel" placeholder="(43) 99999-1234" /></label>
+        <label class="check"><input type="checkbox" name="cConsent" [(ngModel)]="cConsent" /> Cliente autorizou receber avisos pelo WhatsApp (LGPD)</label>
+        <button type="button" class="btn btn-ghost btn-sm" (click)="newCustomer.set(false)">Escolher cliente existente</button>
+      </fieldset>
+    }
+
+    <label>O que lembrar
+      <input name="title" [(ngModel)]="title" required maxlength="160" [placeholder]="placeholder()" />
+      <span class="hint">Aparece na mensagem. Escreva como se completasse a frase “Lembrete: …”.</span>
+    </label>
+
+    <div class="two">
+      <label>{{ type() === 'PAYMENT' ? 'Vencimento' : type() === 'PICKUP' ? 'Pronto desde' : type() === 'RETURN_VISIT' ? 'Data prevista do retorno' : 'Data e hora' }}
+        <input name="eventAt" type="datetime-local" [(ngModel)]="eventAt" required />
+      </label>
+      @if (selectedType().needsAmount) {
+        <label>Valor (R$)
+          <input name="amount" type="number" min="0" step="0.01" [(ngModel)]="amount" inputmode="decimal" />
+        </label>
+      }
+    </div>
+
+    <label>Observações internas <textarea name="notes" [(ngModel)]="notes" maxlength="500" rows="2"></textarea></label>
+
+    <div class="buttons">
+      <button class="btn btn-primary" type="submit" [disabled]="busy() || f.invalid">{{ editing() ? 'Salvar alterações' : 'Criar e agendar avisos' }}</button>
+      @if (editing()) {
+        <button type="button" class="btn btn-ghost danger" (click)="remove()">Excluir</button>
+      }
+    </div>
+  </form>
+
+  @if (reminder(); as r) {
+    <aside class="side">
+      <section class="card">
+        <h2>Resposta do cliente</h2>
+        <p class="hint">O cliente responde no WhatsApp; registre aqui com um toque.</p>
+        <div class="status-buttons">
+          @if (r.type === 'APPOINTMENT') {
+            <button type="button" class="btn btn-outline btn-sm" (click)="setStatus('CONFIRMED')">✓ Confirmou</button>
+            <button type="button" class="btn btn-outline btn-sm" (click)="setStatus('RESCHEDULE_REQUESTED')">↺ Quer remarcar</button>
+            <button type="button" class="btn btn-outline btn-sm" (click)="setStatus('NO_SHOW')">✗ Faltou</button>
+          }
+          @if (r.type !== 'DELIVERY') {
+            <button type="button" class="btn btn-primary btn-sm" (click)="setStatus('DONE')">{{ doneLabel[r.type] }}</button>
+          }
+          <button type="button" class="btn btn-ghost btn-sm" (click)="setStatus('CANCELED')">Cancelar</button>
+          @if (r.status !== 'SCHEDULED') {
+            <button type="button" class="btn btn-ghost btn-sm" (click)="setStatus('SCHEDULED')">Reabrir</button>
+          }
+        </div>
+        @if (r.type === 'DELIVERY') {
+          <a class="btn btn-outline btn-sm" routerLink="/entregas">Ir para o quadro de entregas</a>
+        }
+      </section>
+
+      <section class="card">
+        <h2>Mensagens deste aviso</h2>
+        <ol class="timeline">
+          @for (m of messages(); track m.id) {
+            <li [class]="msgClass(m)">
+              <div class="t-head">
+                <strong>{{ m.kindLabel }}</strong>
+                <span class="chip" [class]="'chip ' + msgClass(m)">{{ msgStatus(m) }}</span>
+              </div>
+              <span class="hint">{{ m.status === 'SENT' && m.sentAt ? 'Enviada ' + fmtDate(m.sentAt) + ' ' + fmtTime(m.sentAt) : fmtDate(m.dueAt) + ' às ' + fmtTime(m.dueAt) }}{{ m.reason ? ' — ' + m.reason : '' }}</span>
+              @if (m.text) {
+                <p class="bubble">{{ m.text }}</p>
+              }
+              @if (m.status === 'PENDING' || m.status === 'SENT') {
+                <button type="button" class="btn btn-ghost btn-sm" (click)="sendNow(m)">{{ m.status === 'SENT' ? 'Reenviar' : 'Enviar agora' }}</button>
+              }
+            </li>
+          } @empty {
+            <li class="hint">Nenhuma mensagem para este aviso.</li>
+          }
+        </ol>
+      </section>
+    </aside>
+  }
+</div>

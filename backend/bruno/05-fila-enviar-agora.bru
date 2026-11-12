@@ -1,0 +1,15 @@
+meta {
+  name: 05 Fila enviar agora (links wa.me)
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/queue
+  auth: basic
+}
+
+auth:basic {
+  username: {{usuario}}
+  password: {{senha}}
+}

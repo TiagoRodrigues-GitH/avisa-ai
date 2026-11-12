@@ -1,0 +1,34 @@
+@if (auth.token()) {
+  <div class="layout">
+    <aside class="sidebar">
+      <a class="brand" routerLink="/" aria-label="Avisa Aí — início">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5-6.71V3.5a2 2 0 0 0-4 0v.79A7 7 0 0 0 5 11v5l-2 2v1h18v-1l-2-2z"/></svg>
+        </span>
+        <span class="brand-name">Avisa <b>Aí</b></span>
+      </a>
+      <nav aria-label="Seções">
+        @for (item of nav; track item.path) {
+          <a
+            [routerLink]="item.path"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: item.exact }"
+            class="nav-link"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="item.icon" /></svg>
+            <span>{{ item.label }}</span>
+          </a>
+        }
+      </nav>
+      <div class="sidebar-foot">
+        <span class="who">{{ auth.user() }}</span>
+        <button type="button" class="link-btn" (click)="logout()">Sair</button>
+      </div>
+    </aside>
+    <main class="content">
+      <router-outlet />
+    </main>
+  </div>
+} @else {
+  <router-outlet />
+}

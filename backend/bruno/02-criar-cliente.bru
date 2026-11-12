@@ -1,0 +1,24 @@
+meta {
+  name: 02 Criar cliente
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/customers
+  body: json
+  auth: basic
+}
+
+auth:basic {
+  username: {{usuario}}
+  password: {{senha}}
+}
+
+body:json {
+  { "name": "Maria Souza", "phone": "(43) 99999-0000", "consent": true }
+}
+
+vars:post-response {
+  clienteId: res.body.id
+}

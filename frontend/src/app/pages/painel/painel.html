@@ -1,0 +1,83 @@
+<header class="page-head">
+  <div>
+    <h1>Painel</h1>
+    <p>Mensagens prontas para enviar e os compromissos de hoje.</p>
+  </div>
+  <a class="btn btn-primary" routerLink="/agenda/novo">+ Novo aviso</a>
+</header>
+
+@if (error()) {
+  <p class="alert" role="alert">{{ error() }}</p>
+}
+
+@if (dash(); as d) {
+  <section class="kpis" aria-label="Indicadores">
+    <div class="kpi highlight"><b>{{ d.readyNow }}</b><span>para enviar agora</span></div>
+    <div class="kpi"><b>{{ d.sentToday }}</b><span>enviadas hoje</span></div>
+    <div class="kpi"><b>{{ d.scheduledToday }}</b><span>compromissos hoje</span></div>
+    <div class="kpi"><b>{{ d.awaitingConfirmation }}</b><span>aguardando confirmação (7 dias)</span></div>
+    <div class="kpi"><b>{{ pct(d.confirmationRate30Days) }}</b><span>taxa de confirmação (30 dias)</span></div>
+    <div class="kpi" [class.alarm]="d.overduePayments > 0"><b>{{ d.overduePayments }}</b><span>pagamentos vencidos</span></div>
+    <div class="kpi"><b>{{ d.openDeliveries }}</b><span>entregas em andamento</span></div>
+    <div class="kpi" [class.alarm]="d.noShows30Days > 0"><b>{{ d.noShows30Days }}</b><span>faltas (30 dias)</span></div>
+  </section>
+}
+
+<div class="grid">
+  <section class="card queue" aria-labelledby="queue-title">
+    <h2 id="queue-title">Enviar agora <span class="chip">{{ queue().length }}</span></h2>
+    <p class="hint how">1) Toque em <b>Abrir no WhatsApp</b> · 2) envie a mensagem já escrita · 3) toque em <b>Enviei</b>.</p>
+    @for (item of queue(); track item.id) {
+      <article class="msg" [class.opened]="opened().has(item.id)">
+        <header>
+          <span class="type" aria-hidden="true">{{ typeOf[item.reminder.type].icon }}</span>
+          <div class="who">
+            <strong>{{ item.reminder.customer.name }}</strong>
+            <span class="hint">{{ item.reminder.customer.phonePretty }}</span>
+          </div>
+          <span class="chip">{{ item.kindLabel }}</span>
+        </header>
+        <p class="bubble">{{ item.text }}</p>
+        <div class="actions">
+          <a class="btn btn-wa btn-sm" [href]="item.chatLink" target="_blank" rel="noopener" (click)="open(item)">Abrir no WhatsApp</a>
+          @if (isDesktop) {
+            <a class="btn btn-outline btn-sm" [href]="item.desktopLink" (click)="open(item)">App do PC</a>
+          }
+          <button type="button" class="btn btn-sm" [class.btn-primary]="opened().has(item.id)" [class.btn-outline]="!opened().has(item.id)" (click)="sent(item)">✓ Enviei</button>
+          <button type="button" class="btn btn-ghost btn-sm" (click)="skip(item)">Dispensar</button>
+        </div>
+      </article>
+    } @empty {
+      <p class="empty">{{ loading() ? 'Carregando…' : 'Tudo em dia! Nenhuma mensagem esperando envio.' }}</p>
+    }
+  </section>
+
+  <section class="card today" aria-labelledby="today-title">
+    <h2 id="today-title">Hoje</h2>
+    @for (r of dash()?.today ?? []; track r.id) {
+      <article class="row">
+        <time>{{ fmtTime(r.eventAt) }}</time>
+        <div class="info">
+          <a [routerLink]="['/agenda', r.id]"><span aria-hidden="true">{{ typeOf[r.type].icon }}</span> {{ r.title }}</a>
+          <span class="hint">{{ r.customer.name }} · {{ r.typeLabel }}</span>
+        </div>
+        <span class="chip" [class.ok]="r.status === 'CONFIRMED' || r.status === 'DONE'" [class.warn]="r.status === 'RESCHEDULE_REQUESTED'" [class.bad]="r.status === 'NO_SHOW' || r.status === 'CANCELED'">
+          {{ statusLabel[r.status] }}
+        </span>
+        @if (r.status === 'SCHEDULED' || r.status === 'CONFIRMED' || r.status === 'RESCHEDULE_REQUESTED') {
+          <div class="quick">
+            @if (r.type === 'APPOINTMENT' && r.status !== 'CONFIRMED') {
+              <button type="button" class="btn btn-ghost btn-sm" (click)="setStatus(r, 'CONFIRMED')">Confirmou</button>
+            }
+            <button type="button" class="btn btn-ghost btn-sm" (click)="setStatus(r, 'DONE')">{{ doneLabel[r.type] }}</button>
+            @if (r.type === 'APPOINTMENT') {
+              <button type="button" class="btn btn-ghost btn-sm" (click)="setStatus(r, 'NO_SHOW')">Faltou</button>
+            }
+          </div>
+        }
+      </article>
+    } @empty {
+      <p class="empty">Nenhum compromisso hoje.</p>
+    }
+  </section>
+</div>
