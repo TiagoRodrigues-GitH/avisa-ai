@@ -25,8 +25,8 @@ class MessagesAndLinksTest {
     @Test
     void fillsVariablesAndNeverLeavesBracesForTheCustomer() {
         String text = DefaultTemplates.render("Olá, {nome}! {titulo} {desconhecida}em {data}.",
-                Map.of("nome", "Ana", "titulo", "Consulta", "data", "sexta, 20/11"));
-        assertThat(text).isEqualTo("Olá, Ana! Consulta em sexta, 20/11.");
+                Map.of("nome", "Elisa", "titulo", "Consulta", "data", "sexta, 20/11"));
+        assertThat(text).isEqualTo("Olá, Elisa! Consulta em sexta, 20/11.");
         for (NotificationKind kind : NotificationKind.values()) {
             assertThat(DefaultTemplates.text(kind)).as(kind.name()).isNotBlank();
         }
@@ -35,8 +35,8 @@ class MessagesAndLinksTest {
     @Test
     void buildsOfficialClickToChatLinks() {
         ClickToChatLinks links = new ClickToChatLinks();
-        assertThat(links.chatLink("5543999991234", "Olá, Ana! Responda *1* & pronto"))
-                .isEqualTo("https://wa.me/5543999991234?text=Ol%C3%A1%2C%20Ana%21%20Responda%20*1*%20%26%20pronto");
+        assertThat(links.chatLink("5543999991234", "Olá, Elisa! Responda *1* & pronto"))
+                .isEqualTo("https://wa.me/5543999991234?text=Ol%C3%A1%2C%20Elisa%21%20Responda%20*1*%20%26%20pronto");
         assertThat(links.desktopLink("5543999991234", "Oi")).isEqualTo("whatsapp://send?phone=5543999991234&text=Oi");
     }
 }

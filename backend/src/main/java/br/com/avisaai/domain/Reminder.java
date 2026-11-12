@@ -41,7 +41,7 @@ public class Reminder {
     @Column(nullable = false, length = 20)
     private ReminderType type;
 
-    /** O que aparece na mensagem: "consulta com a Dra. Ana", "mensalidade de março", "pedido #1234". */
+    /** O que aparece na mensagem: "consulta com a Dra. Emília", "mensalidade de março", "pedido #1234". */
     @Column(nullable = false, length = 160)
     private String title;
 

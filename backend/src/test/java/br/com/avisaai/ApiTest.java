@@ -1,4 +1,4 @@
-package br.com.avisaai;
+﻿package br.com.avisaai;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,21 +44,21 @@ class ApiTest {
     @Test
     @WithMockUser
     void lastMinuteAppointmentGoesStraightToTheQueueWithAWhatsAppLink() throws Exception {
-        long customerId = createCustomer("Ana Pereira", "(43) 99911-1111", true);
+        long customerId = createCustomer("Eduarda Martins", "(43) 99911-1111", true);
         String body = """
-                {"customerId": %d, "type": "APPOINTMENT", "title": "consulta com a Dra. Júlia", "eventAt": "%s"}
+                {"customerId": %d, "type": "APPOINTMENT", "title": "consulta com a Dra. EmÃ­lia", "eventAt": "%s"}
                 """.formatted(customerId, Instant.now().plus(Duration.ofHours(5)));
         mvc.perform(post("/api/reminders").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value("SCHEDULED"));
 
         JsonNode queue = read(mvc.perform(get("/api/queue")).andExpect(status().isOk()).andReturn().getResponse().getContentAsString());
-        // Fora do horário comercial o aviso pode ficar para a manhã; dentro dele, já está na fila.
+        // Fora do horÃ¡rio comercial o aviso pode ficar para a manhÃ£; dentro dele, jÃ¡ estÃ¡ na fila.
         if (queue.size() > 0) {
             JsonNode item = queue.get(0);
             assertThat(item.get("kind").asText()).isEqualTo("APPOINTMENT_CONFIRM");
             assertThat(item.get("chatLink").asText()).startsWith("https://wa.me/5543999111111?text=");
-            assertThat(item.get("text").asText()).contains("Ana").contains("Responda *1*");
+            assertThat(item.get("text").asText()).contains("Eduarda").contains("Responda *1*");
             mvc.perform(post("/api/queue/" + item.get("id").asLong() + "/sent"))
                     .andExpect(jsonPath("$.status").value("SENT"));
         }
@@ -67,9 +67,9 @@ class ApiTest {
     @Test
     @WithMockUser
     void customerWithoutConsentIsNeverMessaged() throws Exception {
-        long customerId = createCustomer("Davi Rocha", "41977444444", false);
+        long customerId = createCustomer("Mateus Elias", "41977444444", false);
         String body = """
-                {"customerId": %d, "type": "WAITLIST", "title": "horário extra", "eventAt": "%s"}
+                {"customerId": %d, "type": "WAITLIST", "title": "horÃ¡rio extra", "eventAt": "%s"}
                 """.formatted(customerId, Instant.now().plus(Duration.ofDays(1)));
         JsonNode created = read(mvc.perform(post("/api/reminders").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andReturn().getResponse().getContentAsString());
@@ -77,13 +77,13 @@ class ApiTest {
         JsonNode messages = read(mvc.perform(get("/api/reminders/" + created.get("id").asLong() + "/messages"))
                 .andReturn().getResponse().getContentAsString());
         String status = messages.get(0).get("status").asText();
-        assertThat(status).isIn("SKIPPED", "PENDING"); // PENDING só se agora for horário de silêncio
+        assertThat(status).isIn("SKIPPED", "PENDING"); // PENDING sÃ³ se agora for horÃ¡rio de silÃªncio
     }
 
     @Test
     @WithMockUser
     void deliveryStagesPrepareMessagesAndDeliveredClosesIt() throws Exception {
-        long customerId = createCustomer("Bruno Lima", "43999222222", true);
+        long customerId = createCustomer("Marcos Esteves", "43999222222", true);
         String body = """
                 {"customerId": %d, "type": "DELIVERY", "title": "#1042", "eventAt": "%s"}
                 """.formatted(customerId, Instant.now().plus(Duration.ofHours(1)));
@@ -112,7 +112,7 @@ class ApiTest {
         mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/templates/PAYMENT_DUE")
                         .contentType(MediaType.APPLICATION_JSON).content("{\"text\":\"Oi {nome}, vence hoje: {valor}.\"}"))
                 .andExpect(jsonPath("$.custom").value(true))
-                .andExpect(jsonPath("$.preview").value("Oi Maria, vence hoje: R$ 150,00."));
+                .andExpect(jsonPath("$.preview").value("Oi Marina, vence hoje: R$ 150,00."));
     }
 
     private long createCustomer(String name, String phone, boolean consent) throws Exception {

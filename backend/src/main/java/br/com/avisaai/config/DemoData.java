@@ -48,18 +48,18 @@ public class DemoData implements ApplicationRunner {
         s.setAddress("Rua das Flores, 100 — Centro");
         settings.save(s);
 
-        Customer ana = customers.save(new Customer("Ana Pereira", "(43) 99911-1111", true));
-        Customer bruno = customers.save(new Customer("Bruno Lima", "(43) 99922-2222", true));
-        Customer carla = customers.save(new Customer("Carla Mendes", "(11) 98833-3333", true));
-        Customer davi = customers.save(new Customer("Davi Rocha", "(41) 97744-4444", false));
+        Customer eduarda = customers.save(new Customer("Eduarda Martins", "(43) 99911-1111", true));
+        Customer marcos = customers.save(new Customer("Marcos Esteves", "(43) 99922-2222", true));
+        Customer elisa = customers.save(new Customer("Elisa Moreira", "(11) 98833-3333", true));
+        Customer mateus = customers.save(new Customer("Mateus Elias", "(41) 97744-4444", false));
 
         Instant now = clock.instant().truncatedTo(ChronoUnit.HOURS);
-        reminders.create(new ReminderCommand(ana.getId(), ReminderType.APPOINTMENT, "consulta com a Dra. Júlia", now.plus(Duration.ofHours(20)), null, null));
-        reminders.create(new ReminderCommand(bruno.getId(), ReminderType.PAYMENT, "a mensalidade de novembro", now.plus(Duration.ofDays(2)), new BigDecimal("180.00"), null));
-        reminders.create(new ReminderCommand(carla.getId(), ReminderType.PICKUP, "o resultado do seu exame", now.minus(Duration.ofHours(1)), null, null));
-        reminders.create(new ReminderCommand(davi.getId(), ReminderType.RETURN_VISIT, "retorno semestral", now.plus(Duration.ofDays(5)), null, null));
-        var delivery = reminders.create(new ReminderCommand(ana.getId(), ReminderType.DELIVERY, "#1042", now.plus(Duration.ofHours(1)), new BigDecimal("89.90"), null));
+        reminders.create(new ReminderCommand(eduarda.getId(), ReminderType.APPOINTMENT, "consulta com a Dra. Emília", now.plus(Duration.ofHours(20)), null, null));
+        reminders.create(new ReminderCommand(marcos.getId(), ReminderType.PAYMENT, "a mensalidade de novembro", now.plus(Duration.ofDays(2)), new BigDecimal("180.00"), null));
+        reminders.create(new ReminderCommand(elisa.getId(), ReminderType.PICKUP, "o resultado do seu exame", now.minus(Duration.ofHours(1)), null, null));
+        reminders.create(new ReminderCommand(mateus.getId(), ReminderType.RETURN_VISIT, "retorno semestral", now.plus(Duration.ofDays(5)), null, null));
+        var delivery = reminders.create(new ReminderCommand(eduarda.getId(), ReminderType.DELIVERY, "#1042", now.plus(Duration.ofHours(1)), new BigDecimal("89.90"), null));
         reminders.advanceDelivery(delivery.getId(), DeliveryStage.OUT_FOR_DELIVERY, 25);
-        reminders.create(new ReminderCommand(bruno.getId(), ReminderType.QUOTE, "limpeza e clareamento", now, new BigDecimal("650.00"), null));
+        reminders.create(new ReminderCommand(marcos.getId(), ReminderType.QUOTE, "limpeza e clareamento", now, new BigDecimal("650.00"), null));
     }
 }

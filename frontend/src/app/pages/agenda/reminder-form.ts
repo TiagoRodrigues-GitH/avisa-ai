@@ -50,7 +50,7 @@ export class ReminderFormPage implements OnInit {
 
   placeholder(): string {
     return {
-      APPOINTMENT: 'ex.: consulta com a Dra. Ana',
+      APPOINTMENT: 'ex.: consulta com a Dra. Emília',
       PAYMENT: 'ex.: a mensalidade de dezembro',
       PICKUP: 'ex.: o seu pedido #1042 / o resultado do exame',
       DELIVERY: 'ex.: #1042',

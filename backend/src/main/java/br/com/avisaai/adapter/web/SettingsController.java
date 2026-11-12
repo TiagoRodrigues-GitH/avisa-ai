@@ -94,7 +94,7 @@ public class SettingsController {
     /** Dados fictícios só para a pré-visualização dos textos. */
     private static Reminder sample() {
         Reminder r = new Reminder();
-        r.setCustomer(new Customer("Maria Souza", "43999990000", true));
+        r.setCustomer(new Customer("Marina Elói", "43999990000", true));
         r.setEventAt(Instant.now().plus(Duration.ofDays(1)).truncatedTo(java.time.temporal.ChronoUnit.HOURS));
         r.setAmount(new BigDecimal("150.00"));
         r.setEtaMinutes(15);
@@ -104,7 +104,7 @@ public class SettingsController {
     private static Reminder sampleOf(Reminder base, NotificationKind kind) {
         base.setType(kind.type());
         base.setTitle(switch (kind.type()) {
-            case APPOINTMENT -> "consulta com a Dra. Ana";
+            case APPOINTMENT -> "consulta com a Dra. Emília";
             case PAYMENT -> "a mensalidade de novembro";
             case PICKUP -> "o seu pedido #1042";
             case DELIVERY -> "#1042";
