@@ -72,3 +72,8 @@ cd frontend; npx ng test --watch=false   # testes do app
 ## Licença
 
 MIT.
+
+
+## Licença
+
+[MIT](LICENSE) — pode usar, modificar e distribuir, mantendo o aviso de direitos autorais.
